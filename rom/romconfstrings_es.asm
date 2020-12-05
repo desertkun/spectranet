@@ -27,6 +27,7 @@ STR_datarom	defb "-- datos --\n",0
 
 STR_menutitle	defb "\n\nMenu de configuración ROM\n=========================\n",0
 STR_addmodule	defb "Añadir un nuevo módulo de ROM",0
+STR_addmodules	defb "Agregar múltiples módulos ROM",0
 STR_repmodule	defb "Reemplazar un módulo",0
 STR_remmodule	defb "Borrar un módulo",0
 STR_exit	defb "Salir",0

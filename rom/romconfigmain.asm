@@ -241,6 +241,33 @@ F_configmenu:
 	ret
 
 ;-------------------------------------------------------------------------
+; F_addmodules
+; Adds multiple modules at a time to the last slot in ROM, assuming there's one available
+.globl F_addmodules
+F_addmodules:
+	call F_findfirstfreepage	; Find the ROM page for the module
+	jp c, J_noroom			; Report "no room" if C is set
+	call SETPAGEB			; page it into area B
+	ld a, 0xC3			; page to fill in RAM
+	call F_loader			; fetch data over the network
+	jp c, F_waitforkey		; bale out now, error receiving
+	ld hl, STR_writingmod		; tell the user
+	call PRINT42
+	ld hl, v_workspace		; hex conversion
+	ld a, (v_pgb)			; of current page B
+	call ITOH8			; convert to hex string
+	ld hl, v_workspace
+	call PRINT42			; print it
+	ld hl, 0x1000			; program a 4K block
+	ld de, 0x2000
+	ld bc, 0x1000
+	di
+	call F_FlashWriteBlock
+	ei
+	jp c, J_writeborked
+	jp F_addmodules
+
+;-------------------------------------------------------------------------
 ; F_addmodule
 ; Adds a new module to the last slot in ROM, assuming there's one available
 .globl F_addmodule
@@ -556,6 +583,7 @@ STR_accum1:	defb NEWLINE,"A' register  : ",0
 ; Definitions.
 MENU_romconfig:
 	defw STR_addmodule,F_addmodule
+	defw STR_addmodules,F_addmodules
 	defw STR_repmodule,F_repmodule
 	defw STR_remmodule,F_remmodule
 	defw STR_exit,F_exit
